@@ -34,5 +34,5 @@ The dataset has two folders train and test, which has all the images in it. The 
 
 Let's visualise some of the data. 
 
-![Some images from the data set](https://imgur.com/a/xEABWLB)
+![Some images from the data set](output_7_0.png)
 

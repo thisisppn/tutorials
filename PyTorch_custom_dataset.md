@@ -36,3 +36,41 @@ Let's visualise some of the data.
 
 ![Some images from the data set](output_7_0.png)
 
+
+Since neural networks are nothing but mathematical operations happening in the background, they won’t support the classnames which are strings. Here you could apply label encoding to convert the class names into integers, but I wanted to simulate the ImageFolder’s `class_to_idx` feature which converts the classes into integers, and stores it in the object.
+
+```python
+# Simulate the class_to_idx of the ImageFolder function of PyTorch  
+def find_classes(dataframe):  
+    classes = list(set(dataframe.iloc[:, 1].values)) # Get unique class names  
+    classes.sort()  
+    class_to_idx = {classes[i]: i for i in range(len(classes))}  
+    return classes, class_to_idx
+```
+For the custom dataset class, we inherit the dataset class of PyTorch
+```python
+class AnimalDataset(Dataset):
+    def __init__(self, csv_file, data_dir, transform=None):
+        self.csv_mapping = pd.read_csv(csv_file)
+        self.root_dir = data_dir
+        self.transform = transform
+        self.classes, self.class_to_idx = find_classes(self.csv_mapping)
+        
+    def __len__(self):
+        return len(self.csv_mapping)
+    
+    def __getitem__(self, idx):
+        img_name = os.path.join(self.root_dir, self.csv_mapping.iloc[idx, 0])
+        image = Image.open(img_name) # For the transformations to work, we need to use 
+        image = image.convert("RGB") # Some PNG images come up with 4 channels, which cause errors. 
+        label = self.class_to_idx[self.csv_mapping.iloc[idx, 1]]
+        
+        if self.transform:
+            image = self.transform(image)
+
+        return (image, label)
+    
+    def get_class_to_idx(self):
+        return self.class_to_idx
+```
+
